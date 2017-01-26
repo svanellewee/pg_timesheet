@@ -26,6 +26,10 @@ shutdown:
 	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Shutdown');"
 	sudo shutdown now
 
+sleep:
+	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Sleep');"
+	osascript -e 'tell application "System Events" to sleep'
+
 $(TIMESHEET_DB):
 	$(INITDB) -D $@
 

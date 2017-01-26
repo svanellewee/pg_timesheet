@@ -9,3 +9,43 @@
    - simple cli based
    - export to xls/csv?
    - restore functionality (needs to be fixed)
+** TODO-list
+   - Log when sleep, wake ? OSX version:
+     #+BEGIN_SRC python
+       #!/usr/bin/env python
+
+       from AppKit import NSWorkspace, NSWorkspaceWillSleepNotification, \
+                          NSWorkspaceDidWakeNotification, NSObject, \
+                          NSApplication, NSLog
+
+       class App(NSObject):
+
+           def applicationDidFinishLaunching_(self, notification):
+               workspace          = NSWorkspace.sharedWorkspace()
+               notificationCenter = workspace.notificationCenter()
+               notificationCenter.addObserver_selector_name_object_(
+                   self,
+                   self.receiveSleepNotification_,
+                   NSWorkspaceWillSleepNotification,
+                   None
+               )
+               notificationCenter.addObserver_selector_name_object_(
+                   self,
+                   self.receiveWakeNotification_,
+                   NSWorkspaceDidWakeNotification,
+                   None
+               )
+
+           def receiveSleepNotification_(self, notification):
+               NSLog("receiveSleepNotification: %@", notification)
+
+           def receiveWakeNotification_(self, notification):
+               NSLog("receiveWakeNotification: %@", notification)
+
+       if __name__ == '__main__':
+           sharedapp = NSApplication.sharedApplication()
+           app       = App.alloc().init()
+           sharedapp.setDelegate_(app)
+           sharedapp.run()
+
+    #+END_SRC
