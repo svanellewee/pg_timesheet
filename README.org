@@ -1,0 +1,11 @@
+* Postgres Based timesheet application
+** Goals
+   - learn postgres, pgsql
+   - learn Make
+   - have something useful from the experience
+** Features
+   - commandline tool to log timesheets
+   - backup functionality (email for now, until we can figure out staging a proper replication strategy)
+   - simple cli based
+   - export to xls/csv?
+   - restore functionality (needs to be fixed)

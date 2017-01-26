@@ -41,7 +41,6 @@ import sys
 import datetime
 print sys.argv
 with open(".credentials.yml") as config_file:
-    #import pdb; pdb.set_trace()
     config = yaml.load(config_file.read())
     username, password, recipient = config['email']['username'], config['email']['password'], config['email']['recipients'][0]
 

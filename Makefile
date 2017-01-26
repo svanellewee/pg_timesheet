@@ -24,7 +24,7 @@ bootstrap: pyvenv
 shutdown:
 	@echo "Clock-out: SHUTDOWN"
 	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Shutdown');"
-
+	sudo shutdown now
 
 $(TIMESHEET_DB):
 	$(INITDB) -D $@
@@ -59,7 +59,7 @@ backup:
 	$(PG_DUMP) -Fc timesheet > $(NEW_TIMESHEET)
 	$(PYTHON) mailer.py $(NEW_TIMESHEET)
 
-restore: 
+restore: createdb
 	$(PG_RESTORE) -C -d timesheet "$(BACKUP)"
 
 clockin:
