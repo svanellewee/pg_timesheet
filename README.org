@@ -10,6 +10,7 @@
    - export to xls/csv?
    - restore functionality (needs to be fixed)
 ** TODO-list
+   - Supervisor job to monitor system state?
    - Log when sleep, wake ? OSX version:
      #+BEGIN_SRC python
        #!/usr/bin/env python

@@ -85,3 +85,7 @@ BEGIN
     RETURN now;
 END;
 $$ LANGUAGE plpgsql;
+
+
+ALTER TABLE timesheet.description DROP COLUMN tags;
+ALTER TABLE timesheet.description CREATE COLUMN tags text[];
