@@ -89,3 +89,25 @@ $$ LANGUAGE plpgsql;
 
 ALTER TABLE timesheet.description DROP COLUMN tags;
 ALTER TABLE timesheet.description CREATE COLUMN tags text[];
+
+
+CREATE OR REPLACE VIEW timesheet.today AS
+SELECT  p.period_id,
+	p.start_time,
+	p.stop_time,
+	age(COALESCE(p.stop_time, NOW()), p.start_time) how_long,
+	d.description,
+	tags
+   FROM timesheet.period p, timesheet.description d
+  WHERE DATE(start_time) = current_date AND d.period_id=p.period_id
+  ORDER BY p.start_time;
+
+DROP VIEW timesheet.all_completed_tasks;
+CREATE OR REPLACE VIEW timesheet.all_completed_tasks AS
+SELECT p.period_id,
+       format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
+       description,
+       note
+  FROM timesheet.period p, timesheet.description d, timesheet.notes n
+ WHERE d.period_id=p.period_id AND n.period_id=p.period_id
+ ORDER BY p.period_id;
