@@ -10,6 +10,8 @@
    - export to xls/csv?
    - restore functionality (needs to be fixed)
 ** TODO-list
+   - RESTful API
+   - Multiple notes to a period.
    - Supervisor job to monitor system state?
    - Log when sleep, wake ? OSX version:
      #+BEGIN_SRC python
