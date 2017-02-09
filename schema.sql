@@ -61,8 +61,6 @@ BEGIN
     RETURNING period_id INTO _period_id;
   INSERT INTO description(period_id, description)
        VALUES (_period_id, description);
-  INSERT INTO notes(period_id, note)
-       VALUES (_period_id, '_');
   RETURN now;
 END;
 $$ LANGUAGE plpgsql;
@@ -81,9 +79,8 @@ BEGIN
           period.stop_time IS NULL
     RETURNING period_id
     INTO _period_id;
-    UPDATE notes
-       SET note=_note
-     WHERE notes.period_id=_period_id;
+    INSERT INTO notes(period_id, note)
+       VALUES (_period_id, _note);
     RETURN now;
 END;
 $$ LANGUAGE plpgsql;
@@ -112,23 +109,41 @@ $$ LANGUAGE plpgsql;
 
 
 
-
+DROP VIEW timesheet.today;
 CREATE OR REPLACE VIEW timesheet.today AS
 SELECT  p.period_id,
-	p.start_time,
-	p.stop_time,
-	age(COALESCE(p.stop_time, NOW()), p.start_time) how_long,
-	d.description
-   FROM timesheet.period p, timesheet.description d
-  WHERE DATE(start_time) = current_date AND d.period_id=p.period_id
+        format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,		
+        age(COALESCE(p.stop_time, NOW()), p.start_time) how_long,
+        d.description,
+        array_agg(note) notes
+   FROM timesheet.period p
+  INNER JOIN timesheet.description d ON d.period_id=p.period_id
+  LEFT OUTER JOIN timesheet.notes n ON n.period_id=p.period_id
+  WHERE DATE(start_time) = current_date
+  GROUP BY p.period_id, d.description
   ORDER BY p.start_time;
 
 DROP VIEW timesheet.all_completed_tasks;
 CREATE OR REPLACE VIEW timesheet.all_completed_tasks AS
 SELECT p.period_id,
        format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
-       description,
-       note
+       d.description,
+       array_agg(note) notes
   FROM timesheet.period p, timesheet.description d, timesheet.notes n
  WHERE d.period_id=p.period_id AND n.period_id=p.period_id
+ GROUP BY p.period_id, d.description
  ORDER BY p.period_id;
+
+DROP VIEW timesheet.all_tasks;
+CREATE OR REPLACE VIEW timesheet.all_tasks AS
+SELECT p.period_id,
+       format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
+       d.description,
+       array_agg(note) notes
+  FROM timesheet.period p
+ INNER JOIN timesheet.description d ON d.period_id=p.period_id
+ LEFT OUTER JOIN timesheet.notes n ON n.period_id=p.period_id
+  GROUP BY p.period_id, d.description
+ ORDER BY p.period_id;
+
+

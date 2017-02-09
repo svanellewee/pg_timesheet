@@ -80,16 +80,13 @@ note:
 	@echo "adding note: $(REASON)"
 	@$(PSQL) timesheet -c "SELECT timesheet.add_note('$(REASON)');"
 
-current-task:
-	@$(PSQL) timesheet -c "SELECT * FROM timesheet.period p, timesheet.description d WHERE d.period_id=p.period_id  ORDER BY p.period_id DESC LIMIT 1;"
-
 
 all-tasks-complete:
-	@$(PSQL) timesheet -c "SELECT p.period_id, start_time, stop_time, description, note FROM timesheet.period p, timesheet.description d, timesheet.notes n WHERE d.period_id=p.period_id AND n.period_id=p.period_id ORDER BY p.period_id;"
+	@$(PSQL) timesheet -c "SELECT * FROM timesheet.all_completed_tasks;"
 
 all-tasks:
-	@$(PSQL) timesheet -c "SELECT * FROM timesheet.period p, timesheet.description d WHERE d.period_id=p.period_id ORDER BY p.period_id;"
+	@$(PSQL) timesheet -c "SELECT * FROM timesheet.all_tasks;"
 
 today:
 	@echo "How today looks like:"
-	@$(PSQL) timesheet -c "SELECT  p.period_id, p.start_time, p.stop_time, age(COALESCE(p.stop_time, NOW()), p.start_time) how_long, d.description FROM timesheet.period p, timesheet.description d WHERE DATE(start_time) = current_date AND d.period_id=p.period_id"
+	@$(PSQL) timesheet -c "SELECT * FROM timesheet.today;"
