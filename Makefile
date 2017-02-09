@@ -39,10 +39,9 @@ startpg: $(TIMESHEET_DB)
 	$(PG_CTL) -D $(TIMESHEET_DB) -l outputlog.log start
 	sleep 1
 
-createdb: startpg
+createdb: 
 	sleep 2
 	$(CREATEDB) timesheet
-
 
 schema: 
 	@$(PSQL) timesheet -f schema.sql
@@ -65,7 +64,7 @@ backup:
 	$(PG_DUMP) -Fc timesheet > $(NEW_TIMESHEET)
 	$(PYTHON) mailer.py $(NEW_TIMESHEET)
 
-restore: createdb
+restore: 
 	$(PG_RESTORE) -C -d timesheet "$(BACKUP)"
 
 clockin:
