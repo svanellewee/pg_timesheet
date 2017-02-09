@@ -1,6 +1,6 @@
-VENV_DIR=venv
-PYTHON=$(VENV_DIR)/bin/python
-PIP=$(VENV_DIR)/bin/pip
+# VENV_DIR=venv
+# PYTHON=$(VENV_DIR)/bin/python
+# PIP=$(VENV_DIR)/bin/pip
 
 POSTGRES?=/Users/svanellewee/appz/postgres/9.6.1/
 INITDB=$(POSTGRES)/bin/initdb
@@ -11,15 +11,15 @@ TIMESHEET_DB=./timesheet_db
 PG_DUMP=$(POSTGRES)/bin/pg_dump
 PG_RESTORE=$(POSTGRES)/bin/pg_restore
 
-$(VENV_DIR):
-	virtualenv --no-site-packages $@
-	$(PIP) install --upgrade pip
-	$(PIP) install supervisor PyYAML autopep8 nose coverage flake8 -e git+https://github.com/docker/compose@1.8.1#egg=docker-compose
+# $(VENV_DIR):
+# 	virtualenv --no-site-packages $@
+# 	$(PIP) install --upgrade pip
+# 	$(PIP) install supervisor PyYAML autopep8 nose coverage flake8 -e git+https://github.com/docker/compose@1.8.1#egg=docker-compose
 
-pyvenv: | $(VENV_DIR)
+# pyvenv: | $(VENV_DIR)
 
 
-bootstrap: pyvenv 
+# bootstrap: pyvenv 
 
 shutdown:
 	@echo "Clock-out: SHUTDOWN"
@@ -57,7 +57,7 @@ status:
 psql:
 	$(PSQL) timesheet
 
-clean:  stoppg
+clean-the-database:  stoppg
 	rm -fr $(TIMESHEET_DB)
 
 NEW_TIMESHEET=$$(echo timesheet_`date +'%y.%m.%d_%H:%M:%S'`.sql)
@@ -90,3 +90,17 @@ all-tasks:
 today:
 	@echo "How today looks like:"
 	@$(PSQL) timesheet -c "SELECT * FROM timesheet.today;"
+
+
+VIRTUALENV_DIR=timesheet_venv
+PIP=$(VIRTUALENV_DIR)/bin/pip
+PYTHON=$(VIRTUALENV_DIR)/bin/python
+$(VIRTUALENV_DIR):
+	pyvenv $(VIRTUALENV_DIR)
+	$(PIP) install -U pip
+
+clean:
+	rm -fr $(VIRTUALENV_DIR)
+
+depends: $(VIRTUALENV_DIR)
+	$(PIP) install aiopg aiohttp

@@ -2,3 +2,6 @@
 *~
 venv/
 timesheet*sql
+timesheet_db/
+timesheet_venv/
+*.log
