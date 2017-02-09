@@ -39,7 +39,7 @@ def send_mail(username, password, recipient, subject, body, files=None):
 import random
 import sys
 import datetime
-print sys.argv
+print(sys.argv)
 with open(".credentials.yml") as config_file:
     config = yaml.load(config_file.read())
     username, password, recipient = config['email']['username'], config['email']['password'], config['email']['recipients'][0]

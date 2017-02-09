@@ -103,4 +103,4 @@ clean:
 	rm -fr $(VIRTUALENV_DIR)
 
 depends: $(VIRTUALENV_DIR)
-	$(PIP) install aiopg aiohttp
+	$(PIP) install aiopg aiohttp PyYAML
