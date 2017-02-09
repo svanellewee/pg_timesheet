@@ -3,6 +3,8 @@
    - learn postgres, pgsql
    - learn Make
    - have something useful from the experience
+   - learn Python3 asyncio
+   - be able to write a story about what happened on what day.. 
 ** Features
    - commandline tool to log timesheets
    - backup functionality (email for now, until we can figure out staging a proper replication strategy)
@@ -82,3 +84,13 @@
     web.run_app(app, host='127.0.0.1', port=8088)
 
   #+END_SRC
+
+** endpoints
+   - POST /period   # start
+   - PUT  /period/1 # stop period ? adjust time?
+   - POST /period/1/note  # add note to period 1
+   - GET  /period  # all
+   - GET  /period/today # today's entries
+** projects?
+   /project/1/period or /project/takealot/period and /project/hackytime/period
+   

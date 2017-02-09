@@ -15,11 +15,14 @@ async def get_today():
     async for elem in cur:
         return elem
 
+async def start_day(request):
+    return web.Response(text='{}', content_type='application/json')
+
 async def index(request):
     values = await get_today()
     for value in values:
         print("..",values)
-    return web.Response(text="Hello there")
+    return web.Response(text='{"Hello": "World"}"', content_type='application/json')
 
 
 app.router.add_get("/", index)
