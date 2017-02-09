@@ -91,6 +91,8 @@
    - POST /period/1/note  # add note to period 1
    - GET  /period  # all
    - GET  /period/today # today's entries
+
 ** projects?
    /project/1/period or /project/takealot/period and /project/hackytime/period
-   
+   Apparently you get template databases but not template schemas. Template schemas are not formalised so create a schema, then apply tables to that schema. Common sql tables file?
+
