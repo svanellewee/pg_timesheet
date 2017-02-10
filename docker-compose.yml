@@ -1,0 +1,23 @@
+version: '2'
+services:
+  postgres:
+    image: postgres:9.6.1
+    restart: always
+    ports:
+      - "54320:5432"
+    environment:
+      - DEBUG=false
+      - DB_USER=timesheet
+      - DB_PASS=timesheet
+      - DB_NAME=
+      - DB_TEMPLATE=
+      - DB_EXTENSION=
+      - REPLICATION_MODE=
+      - REPLICATION_USER=
+      - REPLICATION_PASS=
+      - REPLICATION_SSLMODE=
+    volumes:
+      - ./postgres_timesheet_data:/var/lib/postgresql
+      
+         
+ 
