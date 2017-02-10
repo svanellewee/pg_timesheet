@@ -29,8 +29,11 @@ docker-stop:
 PSQL=psql -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
 INITDB=initdb -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
 CREATEDB=createdb -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
-TIMESHEET_DB=./timesheet_db
 
+# should use docker incantation actually
+POSTGRES?=/Users/svanellewee/appz/postgres/9.6.1/
+PG_RESTORE=$(POSTGRES)/bin/pg_restore -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
+PG_DUMP=$(POSTGRES)/bin/pg_dump -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
 
 destroydb:
 	$(PSQL) -U postgres -c "DROP DATABASE timesheet;"
@@ -45,29 +48,29 @@ psql:
 	$(PSQL) -U timesheet
 
 
-shutdown:
-	@echo "Clock-out: SHUTDOWN"
-	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Shutdown');"
-	$(PYTHON) mailer.py $(NEW_TIMESHEET)
-	sudo shutdown now
+# shutdown:
+# 	@echo "Clock-out: SHUTDOWN"
+# 	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Shutdown');"
+# 	$(PYTHON) mailer.py $(NEW_TIMESHEET)
+# 	sudo shutdown now
 
-sleep:
-	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Sleep');"
-	$(PYTHON) mailer.py $(NEW_TIMESHEET)
-	osascript -e 'tell application "System Events" to sleep'
+# sleep:
+# 	@$(PSQL) timesheet -c "SELECT timesheet.clockout('Sleep');"
+# 	$(PYTHON) mailer.py $(NEW_TIMESHEET)
+# 	osascript -e 'tell application "System Events" to sleep'
 
 schema: 
 	@$(PSQL) -U timesheet -f schema.sql
 
 
 psql:
-	$(PSQL) timesheet
+	$(PSQL) -U timesheet
 
 
 NEW_TIMESHEET=$$(echo timesheet_`date +'%y.%m.%d_%H:%M:%S'`.sql)
 backup:
-	$(PG_DUMP) -Fc timesheet > $(NEW_TIMESHEET)
-	$(PYTHON) mailer.py $(NEW_TIMESHEET)
+	$(PG_DUMP)  -Fc timesheet > $(NEW_TIMESHEET)
+	# $(PYTHON) mailer.py $(NEW_TIMESHEET)
 
 restore: 
 	$(PG_RESTORE) -C -d timesheet "$(BACKUP)"
