@@ -1,7 +1,6 @@
 -- Schema setup
 -- DROP SCHEMA IF EXISTS public;
 CREATE SCHEMA IF NOT EXISTS timesheet;
-CREATE EXTENSION IF NOT EXISTS hstore SCHEMA timesheet;
 
 -- basic unit of timesheet
 -- DROP TABLE IF EXISTS timesheet.period CASCADE;
@@ -18,11 +17,11 @@ CREATE TABLE IF NOT EXISTS timesheet.description (
        description_id SERIAL,
        description TEXT NOT NULL,
        period_id INTEGER NOT NULL,
-       tags text[] not null default '{}';
+       tags text[] not null default '{}',
        PRIMARY KEY(description_id),
        FOREIGN KEY(period_id) REFERENCES timesheet.period(period_id) ON DELETE CASCADE
 );
-ALTER TABLE timesheet.description ADD COLUMN tags text[] NOT NULL DEFAULT '{}';
+-- ALTER TABLE timesheet.description ADD COLUMN tags text[] NOT NULL DEFAULT '{}';
 -- INDEX INDEX description_tags USING gin(tags);
 -- DROP TABLE IF EXISTS timesheet.notes;
 CREATE TABLE IF NOT EXISTS timesheet.notes (
@@ -33,8 +32,8 @@ CREATE TABLE IF NOT EXISTS timesheet.notes (
        FOREIGN KEY(period_id) REFERENCES timesheet.period(period_id) ON DELETE CASCADE
 );
 
-ALTER TABLE timesheet.notes ADD COLUMN created_at TIMESTAMP WITH TIME ZONE;
-ALTER TABLE timesheet.notes ALTER COLUMN created_at SET DEFAULT NOW();
+-- ALTER TABLE timesheet.notes ADD COLUMN created_at TIMESTAMP WITH TIME ZONE;
+-- ALTER TABLE timesheet.notes ALTER COLUMN created_at SET DEFAULT NOW();
 
 CREATE OR REPLACE FUNCTION timesheet.mysum(a int, b int) RETURNS INT AS $$
 DECLARE r int;
