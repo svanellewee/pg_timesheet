@@ -14,7 +14,7 @@ clean:	docker-stop
 	rm -fr $(DCOMPOSE_PGRES_DIR)
 
 depends: $(VIRTUALENV_DIR)
-	$(PIP) install aiopg aiohttp PyYAML docker-compose
+	$(PIP) install aiopg aiohttp PyYAML docker-compose jinja2
 
 
 DOCKER_IP?=127.0.0.1  # 192.168.99.100 docker machine?
@@ -45,10 +45,6 @@ createdb:
 	$(PSQL) -U postgres -c "CREATE DATABASE timesheet;"
 	$(PSQL) -U postgres -c "CREATE USER timesheet PASSWORD 'password';"
 	$(PSQL) -U postgres -c "GRANT ALL ON DATABASE timesheet TO timesheet;"
-	# replacing public with "util", less generic name, more explicit
-	$(PSQL) -U postgres -c "DROP SCHEMA IF EXISTS public;"  
-	$(PSQL) -U postgres -c "DROP SCHEMA IF EXISTS util;"
-	$(PSQL) -U postgres -c "CREATE SCHEMA IF NOT EXISTS util;"
 
 resetdb: destroydb createdb
 
@@ -56,7 +52,7 @@ psql:
 	$(PSQL) -U timesheet
 
 schema: resetdb
-	@$(PSQL) -U timesheet -f schema.sql -v schema=$(PROJECT)
+	$(PYTHON) make_schema.py $(PROJECT) | $(PSQL) -U timesheet -f -
 
 restore: resetdb
 	$(PG_RESTORE) -C -d timesheet "$(BACKUP)"
@@ -76,11 +72,11 @@ clockin:
 	@$(PSQL) -U timesheet -c "SELECT $(PROJECT).clockin('$(REASON)');"
 
 clockout:
-	@echo "Clock-in: $(REASON)"
+	@echo "Clock-in: $(REASON) $(PROJECT)"
 	@$(PSQL) -U timesheet -c "SELECT $(PROJECT).clockout('$(REASON)');"
 
 note:
-	@echo "adding note: $(REASON)"
+	@echo "adding note: $(REASON) $(PROJECT)"
 	@$(PSQL) -U timesheet -c "SELECT $(PROJECT).add_note('$(REASON)');"
 
 
