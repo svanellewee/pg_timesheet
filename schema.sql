@@ -1,10 +1,13 @@
 -- Schema setup
--- DROP SCHEMA IF EXISTS public;
-CREATE SCHEMA IF NOT EXISTS timesheet;
+CREATE SCHEMA IF NOT EXISTS :schema;
+SET search_path TO :schema;
+
+-- Assuming schema created
+
 
 -- basic unit of timesheet
--- DROP TABLE IF EXISTS timesheet.period CASCADE;
-CREATE TABLE IF NOT EXISTS timesheet.period (
+-- DROP TABLE IF EXISTS :schema.period CASCADE;
+CREATE TABLE IF NOT EXISTS :schema.period (
        period_id SERIAL,
        start_time TIMESTAMP WITH TIME ZONE,
        stop_time TIMESTAMP WITH TIME ZONE,
@@ -12,30 +15,30 @@ CREATE TABLE IF NOT EXISTS timesheet.period (
 );
 
 
--- DROP TABLE IF EXISTS timesheet.description;
-CREATE TABLE IF NOT EXISTS timesheet.description (
+-- DROP TABLE IF EXISTS :schema.description;
+CREATE TABLE IF NOT EXISTS :schema.description (
        description_id SERIAL,
        description TEXT NOT NULL,
        period_id INTEGER NOT NULL,
        tags text[] not null default '{}',
        PRIMARY KEY(description_id),
-       FOREIGN KEY(period_id) REFERENCES timesheet.period(period_id) ON DELETE CASCADE
+       FOREIGN KEY(period_id) REFERENCES :schema.period(period_id) ON DELETE CASCADE
 );
--- ALTER TABLE timesheet.description ADD COLUMN tags text[] NOT NULL DEFAULT '{}';
+-- ALTER TABLE :schema.description ADD COLUMN tags text[] NOT NULL DEFAULT '{}';
 -- INDEX INDEX description_tags USING gin(tags);
--- DROP TABLE IF EXISTS timesheet.notes;
-CREATE TABLE IF NOT EXISTS timesheet.notes (
+-- DROP TABLE IF EXISTS :schema.notes;
+CREATE TABLE IF NOT EXISTS :schema.notes (
        notes_id SERIAL,
        note TEXT NOT NULL,
        period_id INTEGER NOT NULL,
        PRIMARY KEY(notes_id),
-       FOREIGN KEY(period_id) REFERENCES timesheet.period(period_id) ON DELETE CASCADE
+       FOREIGN KEY(period_id) REFERENCES :schema.period(period_id) ON DELETE CASCADE
 );
 
--- ALTER TABLE timesheet.notes ADD COLUMN created_at TIMESTAMP WITH TIME ZONE;
--- ALTER TABLE timesheet.notes ALTER COLUMN created_at SET DEFAULT NOW();
+-- ALTER TABLE :schema.notes ADD COLUMN created_at TIMESTAMP WITH TIME ZONE;
+-- ALTER TABLE :schema.notes ALTER COLUMN created_at SET DEFAULT NOW();
 
-CREATE OR REPLACE FUNCTION timesheet.mysum(a int, b int) RETURNS INT AS $$
+CREATE OR REPLACE FUNCTION :schema.mysum(a int, b int) RETURNS INT AS $$
 DECLARE r int;
 BEGIN
   /* insert some code here */
@@ -44,8 +47,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql IMMUTABLE STRICT;
 
-DROP FUNCTION IF EXISTS timesheet.clockin(description TEXT);
-CREATE OR REPLACE FUNCTION timesheet.clockin(description TEXT) RETURNS timestamp AS $$
+DROP FUNCTION IF EXISTS :schema.clockin(description TEXT);
+CREATE OR REPLACE FUNCTION :schema.clockin(description TEXT) RETURNS timestamp AS $$
 DECLARE now timestamp = NOW();
 	_period_id INTEGER;
 	total_active INTEGER;
@@ -65,8 +68,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS timesheet.clockout(_note TEXT);
-CREATE OR REPLACE FUNCTION timesheet.clockout(_note TEXT)
+DROP FUNCTION IF EXISTS :schema.clockout(_note TEXT);
+CREATE OR REPLACE FUNCTION :schema.clockout(_note TEXT)
    RETURNS timestamp AS $$
 DECLARE now timestamp = NOW();
         _period_id INTEGER;
@@ -85,8 +88,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-DROP FUNCTION IF EXISTS timesheet.add_note(_note TEXT);
-CREATE OR REPLACE FUNCTION timesheet.add_note(_note TEXT)
+DROP FUNCTION IF EXISTS :schema.add_note(_note TEXT);
+CREATE OR REPLACE FUNCTION :schema.add_note(_note TEXT)
    RETURNS INTEGER AS $$
 DECLARE now timestamp = NOW();
         _period_id INTEGER;
@@ -108,40 +111,40 @@ $$ LANGUAGE plpgsql;
 
 
 
-DROP VIEW timesheet.today;
-CREATE OR REPLACE VIEW timesheet.today AS
+DROP VIEW IF EXISTS :schema.today;
+CREATE OR REPLACE VIEW :schema.today AS
 	SELECT  p.period_id,
 		format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,		
 		age(COALESCE(p.stop_time, NOW()), p.start_time) how_long,
 		d.description,
 		array_agg(note) notes
-	   FROM timesheet.period p
-     INNER JOIN timesheet.description d ON d.period_id=p.period_id
-LEFT OUTER JOIN timesheet.notes n ON n.period_id=p.period_id
+	   FROM :schema.period p
+     INNER JOIN :schema.description d ON d.period_id=p.period_id
+LEFT OUTER JOIN :schema.notes n ON n.period_id=p.period_id
 	  WHERE DATE(start_time) = current_date
        GROUP BY p.period_id, d.description
        ORDER BY p.start_time;
 
-DROP VIEW timesheet.all_completed_tasks;
-CREATE OR REPLACE VIEW timesheet.all_completed_tasks AS
+DROP VIEW IF EXISTS :schema.all_completed_tasks;
+CREATE OR REPLACE VIEW :schema.all_completed_tasks AS
   SELECT p.period_id,
 	 format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
 	 d.description,
 	 array_agg(note) notes
-    FROM timesheet.period p, timesheet.description d, timesheet.notes n
+    FROM :schema.period p, :schema.description d, :schema.notes n
    WHERE d.period_id=p.period_id AND n.period_id=p.period_id
 GROUP BY p.period_id, d.description
 ORDER BY p.period_id;
 
-DROP VIEW timesheet.all_tasks;
-CREATE OR REPLACE VIEW timesheet.all_tasks AS
+DROP VIEW IF EXISTS :schema.all_tasks;
+CREATE OR REPLACE VIEW :schema.all_tasks AS
 	 SELECT p.period_id,
 		format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
 		d.description,
 		array_agg(note) notes
-	   FROM timesheet.period p
-     INNER JOIN timesheet.description d ON d.period_id=p.period_id
-LEFT OUTER JOIN timesheet.notes n ON n.period_id=p.period_id
+	   FROM :schema.period p
+     INNER JOIN :schema.description d ON d.period_id=p.period_id
+LEFT OUTER JOIN :schema.notes n ON n.period_id=p.period_id
        GROUP BY p.period_id, d.description
        ORDER BY p.period_id;
 
