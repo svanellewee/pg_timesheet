@@ -21,7 +21,7 @@
    Backing up & restore
    Email config:
    #+BEGIN_SRC bash
-     cat <<EOF > blabla 
+     cat <<EOF > .credentials.yml
      email:
        username: some.email@gmail.com
        password: password
