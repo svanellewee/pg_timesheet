@@ -32,7 +32,7 @@ PSQL=psql -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
 # INITDB=initdb -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
 # CREATEDB=createdb -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
 
-# should use docker incantation actually
+# Postgres cli should use docker incantation actually...
 POSTGRES?=/Users/svanellewee/appz/postgres/9.6.1/
 PG_RESTORE=$(POSTGRES)/bin/pg_restore -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
 PG_DUMP=$(POSTGRES)/bin/pg_dump -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)

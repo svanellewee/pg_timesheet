@@ -55,6 +55,8 @@
 
     #+END_SRC
 * NOTES:
+  - The schema... ideas:
+    Perhaps the period table should be common among projects? You can't be working on more than one thing at a time.(#OPINIONATED!)
   #+BEGIN_SRC python
     import aiopg
     import asyncio

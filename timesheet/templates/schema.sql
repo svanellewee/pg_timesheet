@@ -1,13 +1,15 @@
 -- Schema setup
-CREATE SCHEMA IF NOT EXISTS {{ schema_name }};
 
-
-CREATE TABLE IF NOT EXISTS {{ schema_name }}.period (
+CREATE SCHEMA IF NOT EXISTS common;
+CREATE TABLE IF NOT EXISTS common.period (
        period_id SERIAL,
        start_time TIMESTAMP WITH TIME ZONE,
        stop_time TIMESTAMP WITH TIME ZONE,
        PRIMARY KEY(period_id)
 );
+
+CREATE SCHEMA IF NOT EXISTS {{ schema_name }};
+
 
 CREATE TABLE IF NOT EXISTS {{ schema_name }}.description (
        description_id SERIAL,
@@ -15,7 +17,7 @@ CREATE TABLE IF NOT EXISTS {{ schema_name }}.description (
        period_id INTEGER NOT NULL,
        tags text[] not null default '{}',
        PRIMARY KEY(description_id),
-       FOREIGN KEY(period_id) REFERENCES {{ schema_name }}.period(period_id) ON DELETE CASCADE
+       FOREIGN KEY(period_id) REFERENCES common.period(period_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS {{ schema_name }}.notes (
@@ -23,7 +25,7 @@ CREATE TABLE IF NOT EXISTS {{ schema_name }}.notes (
        note TEXT NOT NULL,
        period_id INTEGER NOT NULL,
        PRIMARY KEY(notes_id),
-       FOREIGN KEY(period_id) REFERENCES {{ schema_name }}.period(period_id) ON DELETE CASCADE
+       FOREIGN KEY(period_id) REFERENCES common.period(period_id) ON DELETE CASCADE
 );
 
 
@@ -36,11 +38,11 @@ DECLARE now timestamp = NOW();
 	total_active INTEGER;
 BEGIN
   SET search_path TO {{ schema_name }};
-  SELECT count(1) FROM period WHERE stop_time IS NULL INTO total_active;
+  SELECT count(1) FROM common.period WHERE stop_time IS NULL INTO total_active;
   IF total_active > 0 THEN
      RAISE EXCEPTION 'Already clocked in';
   END IF;
-  INSERT INTO period(start_time)
+  INSERT INTO common.period(start_time)
        VALUES (now)
     RETURNING period_id INTO _period_id;
   INSERT INTO description(period_id, description)
@@ -57,7 +59,7 @@ DECLARE now timestamp = NOW();
         _period_id INTEGER;
 BEGIN
    SET search_path TO {{ schema_name }};
-   UPDATE period
+   UPDATE common.period
       SET stop_time=now
     WHERE period.start_time IS NOT NULL AND
           period.stop_time IS NULL
@@ -78,7 +80,7 @@ DECLARE now timestamp = NOW();
 	_notes_id INTEGER;
 BEGIN
    SET search_path TO {{ schema_name }};
-   SELECT period_id FROM period
+   SELECT period_id FROM common.period
     WHERE period.start_time IS NOT NULL AND
           period.stop_time IS NULL
     INTO _period_id;
@@ -100,7 +102,7 @@ CREATE OR REPLACE VIEW {{ schema_name }}.today AS
 		age(COALESCE(p.stop_time, NOW()), p.start_time) how_long,
 		d.description,
 		array_agg(note) notes
-	   FROM {{ schema_name }}.period p
+	   FROM common.period p
      INNER JOIN {{ schema_name }}.description d ON d.period_id=p.period_id
 LEFT OUTER JOIN {{ schema_name }}.notes n ON n.period_id=p.period_id
 	  WHERE DATE(start_time) = current_date
@@ -113,7 +115,7 @@ CREATE OR REPLACE VIEW {{ schema_name }}.all_completed_tasks AS
 	 format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
 	 d.description,
 	 array_agg(note) notes
-    FROM {{ schema_name }}.period p, {{ schema_name }}.description d, {{ schema_name }}.notes n
+    FROM common.period p, {{ schema_name }}.description d, {{ schema_name }}.notes n
    WHERE d.period_id=p.period_id AND n.period_id=p.period_id
 GROUP BY p.period_id, d.description
 ORDER BY p.period_id;
@@ -124,7 +126,7 @@ CREATE OR REPLACE VIEW {{ schema_name }}.all_tasks AS
 		format('%s -- %s', start_time, coalesce(stop_time::TEXT, 'Unfinished')) period,
 		d.description,
 		array_agg(note) notes
-	   FROM {{ schema_name }}.period p
+	   FROM common.period p
      INNER JOIN {{ schema_name }}.description d ON d.period_id=p.period_id
 LEFT OUTER JOIN {{ schema_name }}.notes n ON n.period_id=p.period_id
        GROUP BY p.period_id, d.description
