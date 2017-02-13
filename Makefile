@@ -51,7 +51,7 @@ resetdb: destroydb createdb
 psql:
 	$(PSQL) -U timesheet
 
-schema: resetdb
+schema: 
 	$(PYTHON) make_schema.py $(PROJECT) | $(PSQL) -U timesheet -f -
 
 restore: resetdb
