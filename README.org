@@ -1,4 +1,35 @@
 * Postgres Based timesheet application
+** How to use
+   Initial startup & usage
+   #+BEGIN_SRC bash
+   make docker-start  # just so that it doesnt muck with any other postgresql's
+   make createdb   # creates the "timesheet" repo, *"public" may or may not be deleted*
+   PROJECT=work make schema # creates the "work" timesheet schema
+   PROJECT=personal make schema  # createst the "personal" timesheet schema
+   make clockin REASON="Go to job" PROJECT="work"
+   make clockin REASON="Do some personal stuff" PROJECT="personal" # Won't work! you're still clocked into work!
+   make clockout REASON="go home" PROJECT="work"
+   make clockin REASON="Go shopping" PROJECT="personal"  # Good, don't mulitask, it's bad for you.
+   #+END_SRC
+   
+   What was done:
+   #+BEGIN_SRC bash
+   make today PROJECT=work # what did I work on today
+   make all-tasks PROJECT=personal # show me ALL my personal tasks done...
+   #+END_SRC
+   
+   Backing up & restore
+   #+BEGIN_SRC bash
+   make backup  # creates a file and tries to mail it to you...
+   make restore BACKUP=timesheet_$(sometimestamp).sql
+   #+END_SRC
+   
+   debug
+   #+BEGIN_SRC bash
+   make psql  # logs you into the dockerized postgres. Our examples should have three schemas "work", "personal" and "common"
+   make resetdb # WIPE EVERYTHING! destroy everything and rebuild database (no schemas)
+   #+END_SRC
+
 ** Goals
    - learn postgres, pgsql
    - learn Make
