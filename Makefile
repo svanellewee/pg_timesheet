@@ -61,10 +61,10 @@ psql:
 	$(PSQL) -U timesheet
 
 
-NEW_TIMESHEET=$$(echo timesheet_`date +'%y.%m.%d_%H:%M:%S'`.sql)
+NEW_TIMESHEET=$$(echo timesheet_alt_`date +'%y.%m.%d_%H:%M:%S'`.sql)
 backup:
 	$(PG_DUMP)  -Fc timesheet > $(NEW_TIMESHEET)
-	# $(PYTHON) mailer.py $(NEW_TIMESHEET)
+	$(PYTHON) mailer.py $(NEW_TIMESHEET)
 
 
 clockin:

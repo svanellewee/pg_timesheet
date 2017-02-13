@@ -19,6 +19,18 @@
    #+END_SRC
    
    Backing up & restore
+   Email config:
+   #+BEGIN_SRC bash
+     cat <<EOF > blabla 
+     email:
+       username: some.email@gmail.com
+       password: password
+       recipients:
+         - who.getsthis@email.com
+         - who.else@eeeemail.com
+     EOF
+   #+END_SRC
+   Actual backup and restoration
    #+BEGIN_SRC bash
    make backup  # creates a file and tries to mail it to you...
    make restore BACKUP=timesheet_$(sometimestamp).sql
