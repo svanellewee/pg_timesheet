@@ -6,6 +6,7 @@ services:
     ports:
       - "54320:5432"
     environment:
+      - TZ=Africa/Johannesburg
       - DEBUG=false
       - DB_USER=timesheet
       - DB_PASS=timesheet
