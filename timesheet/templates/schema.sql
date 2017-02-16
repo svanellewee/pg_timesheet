@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS  {{ schema_name}}.leave (
        note_id INTEGER,
        date TIMESTAMP WITH TIME ZONE DEFAULT now(),
        PRIMARY KEY(leave_id),
-       FOREIGN KEY(note_id) REFERENCES notes(note_id)
+       FOREIGN KEY(note_id) REFERENCES notes(notes_id)  -- stop pluralizing!
 );
 
 CREATE TABLE IF NOT EXISTS {{ schema_name }}.description (
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS {{ schema_name }}.description (
        FOREIGN KEY(period_id) REFERENCES common.period(period_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS {{ schema_name }}.notes (
+CREATE TABLE IF NOT EXISTS {{ schema_name }}.notes (  -- name has to change to "note"
        notes_id SERIAL,
        note TEXT NOT NULL,
        period_id INTEGER NOT NULL,
