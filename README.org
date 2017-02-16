@@ -55,6 +55,7 @@
    - export to xls/csv?
    - restore functionality (needs to be fixed)
 ** TODO-list
+   - today total times
    - RESTful API
    - Multiple notes to a period.
    - Supervisor job to monitor system state?
@@ -98,8 +99,12 @@
 
     #+END_SRC
 * NOTES:
+  - Schemas vs dbs vs vs ..
+    [[http://stackoverflow.com/questions/5678902/postgresql-schemas-usage-scenario-case][Great link on Stack overflow]]
+    So let's assume I want to do this per user.. then a schema per user idea would be great, however, this would mean that I can't nest schemas. And if I'm already using schemas then it's a design flaw. Perhaps I should revisit the idea of common, work, private schemas.
   - The schema... ideas:
     Perhaps the period table should be common among projects? You can't be working on more than one thing at a time.(#OPINIONATED!)
+  - some async code for reference
   #+BEGIN_SRC python
     import aiopg
     import asyncio
@@ -131,12 +136,8 @@
   #+END_SRC
 
 ** endpoints
-   - POST /period   # start
-   - PUT  /period/1 # stop period ? adjust time?
-   - POST /period/1/note  # add note to period 1
-   - GET  /period  # all
-   - GET  /period/today # today's entries
-
+   - POST /timesheet/new  # create a new schema ?
+   - GET /timesheet/{id|name}
 ** projects?
    /project/1/period or /project/takealot/period and /project/hackytime/period
    Apparently you get template databases but not template schemas. Template schemas are not formalised so create a schema, then apply tables to that schema. Common sql tables file?

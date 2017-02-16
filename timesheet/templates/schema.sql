@@ -3,13 +3,22 @@
 CREATE SCHEMA IF NOT EXISTS common;
 CREATE TABLE IF NOT EXISTS common.period (
        period_id SERIAL,
-       start_time TIMESTAMP WITH TIME ZONE,
+       start_time TIMESTAMP WITH TIME ZONE,  --   DEFAULT now(),
        stop_time TIMESTAMP WITH TIME ZONE,
        PRIMARY KEY(period_id)
 );
 
 CREATE SCHEMA IF NOT EXISTS {{ schema_name }};
 
+CREATE TABLE IF NOT EXISTS  {{ schema_name}}.leave (
+       leave_id SERIAL,
+       total DECIMAL DEFAULT 0,
+       approval DECIMAL DEFAULT 0,
+       note_id INTEGER,
+       date TIMESTAMP WITH TIME ZONE DEFAULT now(),
+       PRIMARY KEY(leave_id),
+       FOREIGN KEY(note_id) REFERENCES notes(note_id)
+);
 
 CREATE TABLE IF NOT EXISTS {{ schema_name }}.description (
        description_id SERIAL,
@@ -59,14 +68,15 @@ DECLARE now timestamp = NOW();
         _period_id INTEGER;
 BEGIN
    SET search_path TO {{ schema_name }};
-   UPDATE common.period
-      SET stop_time=now
-    WHERE period.start_time IS NOT NULL AND
-          period.stop_time IS NULL
+       UPDATE common.period
+          SET stop_time=now
+        WHERE period.start_time IS NOT NULL AND
+              period.stop_time IS NULL
     RETURNING period_id
-    INTO _period_id;
+         INTO _period_id;
+	 
     INSERT INTO notes(period_id, note)
-       VALUES (_period_id, _note);
+         VALUES (_period_id, _note);
     RETURN now;
 END;
 $$ LANGUAGE plpgsql;
