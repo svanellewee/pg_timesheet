@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS  {{ schema_name}}.leave (
        leave_id SERIAL,
        total DECIMAL DEFAULT 0,
        approval DECIMAL DEFAULT 0,
+       accrual DECIMAL DEFAULT 0,
        note_id INTEGER,
        date TIMESTAMP WITH TIME ZONE DEFAULT now(),
        PRIMARY KEY(leave_id),
