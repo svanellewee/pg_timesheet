@@ -144,3 +144,4 @@ LEFT OUTER JOIN {{ schema_name }}.notes n ON n.period_id=p.period_id
        ORDER BY p.period_id;
 
 
+
