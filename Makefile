@@ -3,7 +3,7 @@
 VIRTUALENV_DIR=timesheet_venv
 PIP=$(VIRTUALENV_DIR)/bin/pip
 PYTHON=$(VIRTUALENV_DIR)/bin/python
-DCOMPOSE=$(VIRTUALENV_DIR)/bin/docker-compose
+DCOMPOSE=docker-compose
 DCOMPOSE_PGRES_DIR=./postgres_timesheet_data
 $(VIRTUALENV_DIR):
 	pyvenv $(VIRTUALENV_DIR)
@@ -33,9 +33,11 @@ PSQL=psql -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
 # CREATEDB=createdb -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) 
 
 # Postgres cli should use docker incantation actually...
-POSTGRES?=/Users/svanellewee/appz/postgres/9.6.1/
+POSTGRES?=/home/stephan/applications/postgres9.6.2/
 PG_RESTORE=$(POSTGRES)/bin/pg_restore -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
 PG_DUMP=$(POSTGRES)/bin/pg_dump -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
+PG_RESTORE=pg_restore -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT)
+#PG_DUMP=pg_dump -U timesheet -h $(DOCKER_IP) -p $(DOCKER_POSTGRES_PORT) --force
 
 destroydb:
 	$(PSQL) -U postgres -c "DROP DATABASE IF EXISTS timesheet;"
