@@ -14,7 +14,7 @@ clean:	docker-stop
 	rm -fr $(DCOMPOSE_PGRES_DIR)
 
 depends: $(VIRTUALENV_DIR)
-	$(PIP) install aiopg aiohttp PyYAML docker-compose jinja2
+	$(PIP) install aiopg aiohttp PyYAML docker-compose jinja2 dropbox
 
 
 DOCKER_IP?=127.0.0.1  # 192.168.99.100 docker machine?
@@ -60,9 +60,10 @@ psql:
 	$(PSQL) -U timesheet
 
 
-NEW_TIMESHEET=$$(echo timesheet_alt_`date +'%y.%m.%d_%H:%M:%S'`.sql)
+NEW_TIMESHEET=$(shell date +'%y.%m.%d_%H:%M:%S').sql
 backup:
 	$(PG_DUMP)  -Fc timesheet > $(NEW_TIMESHEET)
+	$(PYTHON) uploader.py $(NEW_TIMESHEET)
 	$(PYTHON) mailer.py $(NEW_TIMESHEET)
 
 
